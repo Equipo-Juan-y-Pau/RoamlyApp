@@ -1,0 +1,22 @@
+version: '3.8'
+
+services:
+  mongodb:
+    image: mongo:latest
+    container_name: mongodb-container
+    ports:
+      - "27017:27017" # Exponemos el puerto de MongoDB
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: paula
+      MONGO_INITDB_ROOT_PASSWORD: 123
+    volumes:
+      - mongodb-data:/data/db # Persistencia de datos
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
+
+volumes:
+  mongodb-data:
