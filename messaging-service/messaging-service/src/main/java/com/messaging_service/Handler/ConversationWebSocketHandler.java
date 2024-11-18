@@ -10,6 +10,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.messaging_service.Model.Message;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -45,6 +46,17 @@ public class ConversationWebSocketHandler extends TextWebSocketHandler {
             System.out.println("Sesión eliminada para el usuario: " + userId);
         }
     }
+
+    /**
+     * Verificar si un usuario está conectado.
+     * @param userId El identificador único del usuario.
+     * @return true si el usuario está conectado, false en caso contrario.
+     */
+    public boolean isUserConnected(String userId) {
+        WebSocketSession session = userToSessionMap.get(userId);
+        return session != null && session.isOpen();
+    }
+
 
     /**
      * Sobrescribe el método para manejar cuando se establece una conexión WebSocket.
@@ -83,7 +95,8 @@ public class ConversationWebSocketHandler extends TextWebSocketHandler {
             WebSocketSession session = userToSessionMap.get(userId);
             if (session != null && session.isOpen()) {
                 try {
-                    String payload = new ObjectMapper().writeValueAsString(message);
+                    String payload = message.getRemitenteId() + ": " + message.getContenido();
+                
                     session.sendMessage(new TextMessage(payload));
                     System.out.println("Mensaje enviado a usuario: " + userId);
                 } catch (IOException e) {

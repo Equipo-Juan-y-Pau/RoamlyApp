@@ -15,14 +15,17 @@ import com.messaging_service.Dto.ConversationRequest;
 import com.messaging_service.Model.Conversation;
 import com.messaging_service.Model.Group;
 import com.messaging_service.Repository.ConversationRepository;
+import com.messaging_service.Repository.GroupRepository;
 
 @RestController
 @RequestMapping("/conversation")
 public class ConversationController {
     private final ConversationRepository conversationRepository;
+    private final GroupRepository groupRepository; // Repositorio del grupo
 
-    public ConversationController(ConversationRepository conversationRepository) {
+    public ConversationController(ConversationRepository conversationRepository, GroupRepository groupRepository) {
         this.conversationRepository = conversationRepository;
+        this.groupRepository = groupRepository;
     }
 
     @PostMapping("/create")
@@ -51,12 +54,15 @@ public class ConversationController {
             Group group = new Group();
             group.setName(request.getGroupName() != null ? request.getGroupName() : "Grupo de " + participants.size() + " personas");
             group.setAdminId(participants.get(0)); // El primer participante es el admin
-            conversation.setGroupId(group.getName());
+
+            // Guardar el grupo en el repositorio de grupos
+            Group savedGroup = groupRepository.save(group);
+            conversation.setGroupId(savedGroup.getId()); // Usar el ID del grupo creado
         } else {
             conversation.setType("DIRECTA");
         }
 
-        // Guardar en la base de datos
+        // Guardar en la base de datos de conversaciones
         Conversation savedConversation = conversationRepository.save(conversation);
 
         // Devolver la conversación creada

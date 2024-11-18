@@ -42,12 +42,16 @@ public class MessageController {
         if (optionalConversation.isPresent()) {
             Conversation conversation = optionalConversation.get();
 
-            if(message.getRemitenteId() == null || message.getRemitenteId().isEmpty()) {
+            // Verificar si el remitente está presente en la solicitud
+            if (message.getRemitenteId() == null || message.getRemitenteId().isEmpty()) {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("El remitente es requerido.");
             }
-            else if(conversation.getParticipants().stream().noneMatch(p -> p.equals(message.getRemitenteId()))) {
+
+            // Verificar si el remitente es parte de la conversación
+            if (conversation.getParticipants().stream().noneMatch(p -> p.equals(message.getRemitenteId()))) {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("El remitente no es parte de la conversación.");
             }
+
             // Guardar el mensaje en la base de datos
             message.setFechaEnvio(LocalDateTime.now().toString());
             message.setEstado("ENVIADO");
@@ -67,4 +71,5 @@ public class MessageController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("La conversación no existe.");
         }
     }
+
 }
